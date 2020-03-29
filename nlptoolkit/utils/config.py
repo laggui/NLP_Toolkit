@@ -7,7 +7,7 @@ Created on Fri Oct 11 16:01:31 2019
 """
 import sys
 sys.path.insert(1, '../')
-from style_transfer.add_misc.misc import Config as style_config
+# from style_transfer.add_misc.misc import Config as style_config
 
 class Config(object):
     def __init__(self, task):
