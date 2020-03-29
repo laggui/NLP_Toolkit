@@ -255,12 +255,21 @@ def get_TED_transcripts(args):
     df = pd.DataFrame({'transcripts':transcripts})
     return df
 
+def get_train_sentences(args):
+    logger.info("Collecting train sentences...")
+    with open(args.data_path, 'r', encoding='utf-8') as f:
+        text = f.readlines()
+    # Strip leading whitespace (newline)
+    text = [x.strip() for x in text]
+    return text
+
 def create_TED_datasets(args):
-    df = get_TED_transcripts(args)
-    sents = []
-    logger.info("Splitting transcripts into sentences..")
-    for transcript in tqdm(df['transcripts']):
-        sents.extend(transcript.split('\n'))
+    # df = get_TED_transcripts(args)
+    sents = get_train_sentences(args)
+    # sents = []
+    # logger.info("Splitting transcripts into sentences..")
+    # for transcript in tqdm(df['transcripts']):
+    #     sents.extend(transcript.split('\n'))
     df = pd.DataFrame({'sents':sents})
     df.loc[df['sents'] == '', 'sents'] = None
     df.dropna(inplace=True) # remove blank rows
