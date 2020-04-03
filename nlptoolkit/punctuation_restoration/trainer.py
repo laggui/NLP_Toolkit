@@ -9,7 +9,8 @@ import os
 import torch
 from torch.nn.utils import clip_grad_norm_
 from .preprocessing_funcs import load_dataloaders
-from .train_funcs import load_state, load_results, load_model_and_optimizer, evaluate_results, decode_outputs, decode_outputs_p
+from .train_funcs import load_state, load_results, load_model_and_optimizer, decode_outputs, decode_outputs_p
+from .train_eval import evaluate_results
 from .utils.word_char_level_vocab import tokener
 from .utils.bpe_vocab import Encoder
 from .utils.misc import save_as_pickle, load_pickle
