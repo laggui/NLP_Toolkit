@@ -9,7 +9,6 @@ import pickle
 import pandas as pd
 import numpy as np
 import re
-from bs4 import BeautifulSoup
 import torch
 from torch.utils.data import Dataset, DataLoader
 from torch.nn.utils.rnn import pad_sequence
@@ -242,19 +241,6 @@ class punc_datasets(Dataset):
         y2 = torch.tensor(self.y2.iloc[idx])
         return X, y1, y2
 
-def get_TED_transcripts(args):
-    logger.info("Collating TED transcripts...")
-    with open(args.data_path, 'r', encoding='utf-8') as f: # "./data/train.tags.en-fr.en"
-        text = f.read()
-
-    soup = BeautifulSoup(text)
-    results = soup.find_all("transcript")
-    transcripts = []
-    for result in results:
-        transcripts.append(result.text)
-    df = pd.DataFrame({'transcripts':transcripts})
-    return df
-
 def get_train_sentences(args):
     logger.info("Collecting train sentences...")
     with open(args.data_path, 'r', encoding='utf-8') as f:
@@ -311,22 +297,22 @@ def create_TED_datasets(args):
         logger.info("Limiting tokens to max_encoder_length...")
         df = df[df['length'] <= (args.max_encoder_len - 2)]
         
-        save_as_pickle("./data/eng.pkl",\
+        save_as_pickle(os.path.join(args.checkpoint_path, "eng.pkl"),\
                        df)
-        encoder.save("./data/vocab.pkl")
-        save_as_pickle("./data/mappings.pkl", mappings)
-        save_as_pickle("./data/idx_mappings.pkl", idx_mappings)
+        encoder.save(os.path.join(args.checkpoint_path, "vocab.pkl"))
+        save_as_pickle(os.path.join(args.checkpoint_path, "mappings.pkl"), mappings)
+        save_as_pickle(os.path.join(args.checkpoint_path, "idx_mappings.pkl"), idx_mappings)
     
     return df
         
 def load_dataloaders(args):
-    if not os.path.isfile("./data/eng.pkl"):
+    if not os.path.isfile(os.path.join(args.checkpoint_path, "eng.pkl")):
         df = create_TED_datasets(args)
     else:
-        df = load_pickle("./data/eng.pkl")
+        df = load_pickle(os.path.join(args.checkpoint_path, "eng.pkl"))
         logger.info("Loaded preprocessed data from file...")
-    vocab = Encoder.load("./data/vocab.pkl")
-    idx_mappings = load_pickle("./data/idx_mappings.pkl") # {250: 0, 34: 1, 5: 2, 4: 3, 'word': 4, 'sos': 5, 'eos': 6, 'pad': 7}
+    vocab = Encoder.load(os.path.join(args.checkpoint_path, "vocab.pkl"))
+    idx_mappings = load_pickle(os.path.join(args.checkpoint_path, "idx_mappings.pkl")) # {250: 0, 34: 1, 5: 2, 4: 3, 'word': 4, 'sos': 5, 'eos': 6, 'pad': 7}
     
     if args.model_no == 0:
         trainset = punc_datasets(df=df, label_pad_value=vocab.word_vocab['__pad'], label2_pad_value=idx_mappings['pad'],\

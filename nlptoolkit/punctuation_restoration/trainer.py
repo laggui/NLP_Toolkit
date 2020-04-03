@@ -35,13 +35,13 @@ def train_and_fit(args):
         create_masks, create_trg_mask = None, None
     
     if args.level == "bpe":
-        vocab = Encoder.load("./data/vocab.pkl")
+        vocab = Encoder.load(os.path.join(args.checkpoint_path,"vocab.pkl"))
         vocab_size = len(vocab.bpe_vocab) + len(vocab.word_vocab)
         tokenizer_en = tokener("en")
         vocab.word_tokenizer = tokenizer_en.tokenize
         vocab.custom_tokenizer = True
-        mappings = load_pickle("mappings.pkl") # {'!': 250, '?': 34, '.': 5, ',': 4}
-        idx_mappings = load_pickle("idx_mappings.pkl") # {250: 0, 34: 1, 5: 2, 4: 3, 'word': 4, 'sos': 5, 'eos': 6, 'pad': 7}
+        mappings = load_pickle("mappings.pkl", base_path=args.checkpoint_path) # {'!': 250, '?': 34, '.': 5, ',': 4}
+        idx_mappings = load_pickle("idx_mappings.pkl", base_path=args.checkpoint_path) # {250: 0, 34: 1, 5: 2, 4: 3, 'word': 4, 'sos': 5, 'eos': 6, 'pad': 7}
         
         inv_idx = {v: k for k, v in idx_mappings.items()} # {0: 250, 1: 34, 2: 5, 3: 4, 4: 'word', 5: 'sos', 6: 'eos', 7: 'pad'}
         inv_map = {v:k for k, v in mappings.items()} # {250: '!', 34: '?', 5: '.', 4: ','}

@@ -97,7 +97,7 @@ def load_model_and_optimizer(args, src_vocab_size, trg_vocab_size, trg2_vocab_si
 
 def load_state(net, args, load_best=False, load_scheduler=False):
     """ Loads saved model and optimizer states if exists """
-    base_path = "./data/"
+    base_path = args.checkpoint_path #"./data/"
     checkpoint_path = os.path.join(base_path,"test_checkpoint_%d.pth.tar" % args.model_no)
     best_path = os.path.join(base_path,"test_model_best_%d.pth.tar" % args.model_no)
     start_epoch, best_pred, checkpoint = 0, 0, None

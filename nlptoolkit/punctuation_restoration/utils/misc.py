@@ -9,8 +9,8 @@ import pickle
 import torch
 import numpy as np
 
-def load_pickle(filename):
-    completeName = os.path.join("./data/",\
+def load_pickle(filename, base_path="./data/"):
+    completeName = os.path.join(base_path,\
                                 filename)
     with open(completeName, 'rb') as pkl_file:
         data = pickle.load(pkl_file)

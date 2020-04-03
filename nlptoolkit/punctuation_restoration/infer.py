@@ -5,6 +5,7 @@ Created on Mon Sep  2 12:26:35 2019
 @author: tsd
 """
 import re
+import os
 import pandas as pd
 import torch
 from .preprocessing_funcs import load_dataloaders
@@ -82,13 +83,13 @@ class infer_from_trained(object):
         
         if self.args.level == "bpe":
             logger.info("Loading BPE info...")
-            self.vocab = Encoder.load("./data/vocab.pkl")
+            self.vocab = Encoder.load(os.path.join(self.args.checkpoint_path, "vocab.pkl"))
             self.vocab_size = len(self.vocab.bpe_vocab) + len(self.vocab.word_vocab)
             self.tokenizer_en = tokener("en")
             self.vocab.word_tokenizer = self.tokenizer_en.tokenize
             self.vocab.custom_tokenizer = True
-            self.mappings = load_pickle("mappings.pkl") # {'!': 250, '?': 34, '.': 5, ',': 4}
-            self.idx_mappings = load_pickle("idx_mappings.pkl") # {250: 0, 34: 1, 5: 2, 4: 3, 'word': 4, 'sos': 5, 'eos': 6, 'pad': 7}
+            self.mappings = load_pickle("mappings.pkl", base_path=self.args.checkpoint_path) # {'!': 250, '?': 34, '.': 5, ',': 4}
+            self.idx_mappings = load_pickle("idx_mappings.pkl", base_path=self.args.checkpoint_path) # {250: 0, 34: 1, 5: 2, 4: 3, 'word': 4, 'sos': 5, 'eos': 6, 'pad': 7}
         
         self.trg2_vocab = trg2_vocab_obj(self.idx_mappings, self.mappings)
         
