@@ -2,3 +2,4 @@ numpy==1.18.1
 spacy==2.2.2
 torch==1.4.0
 tqdm==4.43.0
+pandas==0.24.2
