@@ -36,11 +36,11 @@ class Encoder:
                  EOS=DEFAULT_EOS):
         if vocab_size < 1:
             raise ValueError('vocab size must be greater than 0.')
-        if word_tokenizer is None:
-            from nltk.tokenize import wordpunct_tokenize
-            self.word_tokenizer = wordpunct_tokenize
-        else:
-            self.word_tokenizer = word_tokenizer
+        # if word_tokenizer is None:
+        #     from nltk.tokenize import wordpunct_tokenize
+        #     self.word_tokenizer = wordpunct_tokenize
+        # else:
+        #     self.word_tokenizer = word_tokenizer
         self.EOW = EOW
         self.SOW = SOW
         self.eow_len = len(EOW)
@@ -54,7 +54,7 @@ class Encoder:
         self.pct_bpe = pct_bpe
         self.word_vocab_size = max([int(vocab_size * (1 - pct_bpe)), len(self.required_tokens or [])])
         self.bpe_vocab_size = vocab_size - self.word_vocab_size
-        # self.word_tokenizer = word_tokenizer if word_tokenizer is not None else wordpunct_tokenize
+        self.word_tokenizer = word_tokenizer
         self.custom_tokenizer = word_tokenizer is not None
         self.word_vocab = {}  # type: Dict[str, int]
         self.bpe_vocab = {}  # type: Dict[str, int]
