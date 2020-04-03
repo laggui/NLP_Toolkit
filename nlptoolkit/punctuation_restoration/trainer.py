@@ -126,14 +126,14 @@ def train_and_fit(args):
         if accuracy_per_epoch[-1] > acc:
             acc = accuracy_per_epoch[-1]
             net.save_state(epoch=(e+1), optimizer=optimizer, scheduler=scheduler, best_acc=acc,\
-                           path=os.path.join("./data/" ,\
+                           path=os.path.join(args.checkpoint_path ,\
                     "test_model_best_%d.pth.tar" % args.model_no))
 
         if (e % 1) == 0:
             save_as_pickle("test_losses_per_epoch_%d.pkl" % args.model_no, losses_per_epoch)
             save_as_pickle("test_accuracy_per_epoch_%d.pkl" % args.model_no, accuracy_per_epoch)
             net.save_state(epoch=(e+1), optimizer=optimizer, scheduler=scheduler, best_acc=acc,\
-                           path=os.path.join("./data/" ,\
+                           path=os.path.join(args.checkpoint_path ,\
                     "test_checkpoint_%d.pth.tar" % args.model_no))
 
     logger.info("Finished training")
@@ -143,7 +143,7 @@ def train_and_fit(args):
     ax.set_xlabel("Epoch", fontsize=15)
     ax.set_ylabel("Loss", fontsize=15)
     ax.set_title("Loss vs Epoch", fontsize=20)
-    plt.savefig(os.path.join("./data/",\
+    plt.savefig(os.path.join(args.checkpoint_path,\
                              "test_loss_vs_epoch_%d.png" % args.model_no))
     
     fig = plt.figure(figsize=(13,13))
@@ -152,5 +152,5 @@ def train_and_fit(args):
     ax.set_xlabel("Epoch", fontsize=15)
     ax.set_ylabel("Accuracy", fontsize=15)
     ax.set_title("Accuracy vs Epoch", fontsize=20)
-    plt.savefig(os.path.join("./data/",\
+    plt.savefig(os.path.join(args.checkpoint_path,\
                              "test_Accuracy_vs_epoch_%d.png" % args.model_no))
