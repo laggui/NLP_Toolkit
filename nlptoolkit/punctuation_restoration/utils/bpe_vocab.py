@@ -11,8 +11,13 @@ except ImportError:
     pass
 
 from tqdm import tqdm
-import toolz
 import json
+
+# toolz is only a requirement for training, so let's assume it's ok to not have it
+try:
+    import toolz
+except ModuleNotFoundError:
+    pass
 
 DEFAULT_EOW = '__eow'
 DEFAULT_SOW = '__sow'
