@@ -229,8 +229,8 @@ class punc_datasets(Dataset):
             return x
         
         if pad_max_length:
-            logger.info("Padding sequences to max_lengths %d, %d" % (80, self.max_output_len))
-            self.X = df.progress_apply(lambda x: x_padder(x['train'], 80), axis=1)
+            logger.info("Padding sequences to max_length %d" % (self.max_output_len))
+            self.X = df.progress_apply(lambda x: x_padder(x['train'], self.max_output_len), axis=1)
         
     
     def __len__(self):

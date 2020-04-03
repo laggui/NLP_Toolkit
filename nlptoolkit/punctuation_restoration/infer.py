@@ -218,6 +218,9 @@ class infer_from_trained(object):
                 predicted = "None"
             
         elif self.args.model_no == 1:
+            # Skip longer sentences so as to not truncate input
+            if sent.shape[1] > self.args.max_encoder_len:
+                return sentence, 0
             sent = torch.nn.functional.pad(sent,[0, (self.args.max_encoder_len - sent.shape[1])], value=1)
             trg_input = torch.tensor([self.vocab.word_vocab['__sos']]).unsqueeze(0)
             trg2_input = torch.tensor([self.idx_mappings['sos']]).unsqueeze(0)
@@ -242,11 +245,25 @@ class infer_from_trained(object):
                 elif (counter >= len(sent)) and (p in ['word', 'sos']):
                     punc[idx] = 5
                     break
-            
-            predicted = " ".join(self.vocab.inverse_transform([punc[:idx]]))
-            predicted = corrector_module(predicted)
-            print("Predicted Label: ", predicted)
-        return predicted
+            missing = []
+            out = punc[:idx]
+            miss_ = 0
+            # Make sure no words were removed
+            if counter < len(sent):
+                # Count number of missing words
+                num_missing = len(sent) - counter
+                # Retrieve missing words from original input
+                missing = sent[-num_missing:]
+                # If predicted output finishes with a dot, remove it and
+                # add it at the end
+                if out[-1] == 5:
+                    out = out[:-1]
+                    missing = missing + [5]
+                miss_ = 1
+            predicted = " ".join(self.vocab.inverse_transform([out + missing]))
+            # predicted = corrector_module(predicted)
+            # print("Predicted Label: ", predicted)
+        return predicted, miss_
     
     def infer_from_input(self,):
         self.net.eval()
@@ -255,13 +272,31 @@ class infer_from_trained(object):
                 sent = input("Input sentence to punctuate:\n")
                 if sent in ["quit", "exit"]:
                     break
-                predicted = self.infer_sentence(sent)
+                predicted, _ = self.infer_sentence(sent)
         return predicted
     
     def infer_from_file(self, in_file="./data/input.txt", out_file="./data/output.txt"):
-        df = pd.read_csv(in_file, header=None, names=["sents"])
-        df['labels'] = df.progress_apply(lambda x: self.infer_sentence(x['sents']), axis=1)
-        df.to_csv(out_file, index=False)
+        self.net.eval()
+        print(f'Reading input {in_file}')
+        # Read input sentences split
+        with open(in_file, 'r') as f:
+            content = f.readlines()
+        # Strip trailing whitespace
+        content = [x.strip() for x in content]
+        predicted = []
+        missing = 0
+
+        regex = re.compile(r',(\w+)', re.IGNORECASE)
+        with torch.no_grad():
+            for sent in tqdm(content, desc='Predicting input punctuation...'):
+                pred, m = self.infer_sentence(sent)
+                # Remove commas inserted between subwords for predictions
+                predicted.append(regex.sub(r'\1', pred))
+                missing += m
+        # Write to output
+        print(f'{missing} predictions had missing words.')
+        with open(out_file, 'w') as f:
+            f.write('\n'.join(predicted))
         logger.info("Done and saved as %s!" % out_file)
         return
 
